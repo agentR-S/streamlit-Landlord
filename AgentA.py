@@ -4,8 +4,8 @@ import json
 
 # Set up your Azure OpenAI API key and endpoint
 api_key = "F4w0ncKnEKn54ox577yHf11Cn3fil3qP4RYl6DGizFGglot7Fv6hJQQJ99AJACYeBjFXJ3w3AAABACOGCl1Q"  # Replace with your actual Azure OpenAI API key
-endpoint = "https://agenta.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview"  # Replace with your actual Azure OpenAI endpoint
-deployment_id = "azureml://registries/azure-openai/models/gpt-4/versions/turbo-2024-04-09"  # Replace with your actual deployment ID
+endpoint = "https://agenta.openai.azure.com/"  # Replace with your actual Azure OpenAI endpoint
+deployment_id = "gpt-4"  # Replace with your actual deployment ID
 
 # Headers for authentication
 headers = {
@@ -14,42 +14,45 @@ headers = {
 }
 
 # Function to send a request to Azure OpenAI API
-def get_openai_response(prompt):
+def get_openai_response(messages):
     data = {
-        "prompt": prompt,
+        "messages": messages,
         "max_tokens": 150
     }
 
     response = requests.post(
-        f"{endpoint}/openai/deployments/{deployment_id}/completions?api-version=2024-08-01-preview",
+        f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2023-08-01-preview",
         headers=headers,
         data=json.dumps(data)
     )
 
     if response.status_code == 200:
         result = response.json()
-        return result['choices'][0]['text'].strip()
+        return result['choices'][0]['message']['content'].strip()
     else:
-        return f"Error: {response.status_code}"
+        return f"Error: {response.status_code} - {response.text}"
 
 # Define the system prompt (agent characteristics and cultural contingencies)
-system_prompt = """
-You are an AI agent acting as a landlord in a rental negotiation.
-You represent European cultural traits like professionalism, fairness, and collaboration. 
-You prioritize long-term commitments and ensure timely payments. 
-You are firm on rental prices but open to negotiation on lease duration and terms, as long as they don't compromise the financial stability of the landlord.
-Communicate in a polite but assertive manner, aiming for a win-win outcome while ensuring the landlord's interests are protected.
-
-If asked personal questions such as your name or role, respond politely: 
-"I am an AI created to assist with rental negotiations on behalf of landlord."
-You should act like a female European individual.
-
-If asked about your purpose, explain that you are here to facilite and aim at achieving a win win agreement.
-"""
+system_prompt = {
+    "role": "system",
+    "content": """
+    You are an AI agent acting as a landlord in a rental negotiation.
+    You represent European cultural traits like professionalism, fairness, and collaboration. 
+    You prioritize long-term commitments and ensure timely payments. 
+    You are firm on rental prices but open to negotiation on lease duration and terms, as long as they don't compromise the financial stability of the landlord.
+    Communicate in a polite but assertive manner, aiming for a win-win outcome while ensuring the landlord's interests are protected.
+    
+    If asked personal questions such as your name or role, respond politely: 
+    "I am an AI created to assist with rental negotiations on behalf of landlords."
+    You should act like a female European individual.
+    
+    If asked about your purpose, explain that you are here to facilitate and aim at achieving a win-win agreement.
+    """
+}
 
 # Initialize conversation history
 if "conversation" not in st.session_state:
-    st.session_state.conversation = []
+    st.session_state.conversation = [{"role": "system", "content": system_prompt["content"]}]
 
 # Streamlit interface
 st.title("AI Landlord Negotiation Chat")
@@ -59,20 +62,21 @@ user_input = st.text_input("You:", "")
 
 # Button to send user input
 if st.button("Send") and user_input:
-    # Combine system prompt and user input
-    full_prompt = system_prompt + "\n\n" + "\n".join(st.session_state.conversation) + "\n\n" + user_input
-
+    # Add user's input to the conversation history
+    st.session_state.conversation.append({"role": "user", "content": user_input})
 
     # Get the AI response
-    ai_response = get_openai_response(full_prompt)
+    ai_response = get_openai_response(st.session_state.conversation)
 
-    # Add to conversation history
-    st.session_state.conversation.append(f"You: {user_input}")
-    st.session_state.conversation.append(f"AI: {ai_response}")
+    # Add AI's response to the conversation history
+    st.session_state.conversation.append({"role": "assistant", "content": ai_response})
 
     # Clear user input after submission
     user_input = ""
 
 # Display conversation history
 for message in st.session_state.conversation:
-    st.write(message)
+    if message["role"] == "user":
+        st.write(f"You: {message['content']}")
+    elif message["role"] == "assistant":
+        st.write(f"AI: {message['content']}")
