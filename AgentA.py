@@ -5,7 +5,7 @@ import json
 # Set up your Azure OpenAI API key and endpoint
 api_key = "F4w0ncKnEKn54ox577yHf11Cn3fil3qP4RYl6DGizFGglot7Fv6hJQQJ99AJACYeBjFXJ3w3AAABACOGCl1Q"  # Replace with your actual Azure OpenAI API key
 endpoint = "https://agenta.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview"  # Replace with your actual Azure OpenAI endpoint
-deployment_id = "gpt-4"  # Replace with your actual deployment ID
+deployment_id = "azureml://registries/azure-openai/models/gpt-4/versions/turbo-2024-04-09"  # Replace with your actual deployment ID
 
 # Headers for authentication
 headers = {
@@ -21,7 +21,7 @@ def get_openai_response(prompt):
     }
 
     response = requests.post(
-        f"{endpoint}/openai/deployments/{deployment_id}/completions?api-version=2022-12-01",
+        f"{endpoint}/openai/deployments/{deployment_id}/completions?api-version=2024-08-01-preview",
         headers=headers,
         data=json.dumps(data)
     )
