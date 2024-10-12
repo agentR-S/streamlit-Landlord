@@ -3,9 +3,9 @@ import requests
 import json
 
 # Set up your Azure OpenAI API key and endpoint
-api_key = "77fb8580ac764c64b4efd18333c56c31"  # Replace with your actual Azure OpenAI API key
-endpoint = "https://agenta.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2024-08-01-preview"  # Replace with your actual Azure OpenAI endpoint
-deployment_id = "gpt-35-turbo"  # Replace with your actual deployment ID
+api_key = "F4w0ncKnEKn54ox577yHf11Cn3fil3qP4RYl6DGizFGglot7Fv6hJQQJ99AJACYeBjFXJ3w3AAABACOGCl1Q"  # Replace with your actual Azure OpenAI API key
+endpoint = "https://agenta.openai.azure.com/openai/deployments/gpt-4/chat/completions?api-version=2024-08-01-preview"  # Replace with your actual Azure OpenAI endpoint
+deployment_id = "gpt-4"  # Replace with your actual deployment ID
 
 # Headers for authentication
 headers = {
