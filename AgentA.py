@@ -25,7 +25,7 @@ def get_openai_response(prompt):
     }
 
     response = requests.post(
-        f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2024-08-01-preview",
+        f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2023-08-01-preview",
         headers=headers,
         data=json.dumps(data)
     )
@@ -39,8 +39,8 @@ def get_openai_response(prompt):
 # Define the system prompt (agent characteristics and cultural contingencies)
 system_prompt = """
 You are an AI agent acting as a landlord in a rental negotiation.
-You have to act like you are a landlor who owns an apartment in Milan, Italy and you want to rent it.
-The apartment that you want to rent is a 90 square meter one, with a 2 bedrooms, a bathroom, a living room with open kitchen and a small balcony in Navigli.
+You have to act like you are a landlord who owns an apartment in Milan, Italy and you want to rent it.
+The apartment that you want to rent is a 90 square meter one, with 2 bedrooms, a bathroom, a living room with an open kitchen, and a small balcony in Navigli.
 You represent European cultural traits like professionalism, fairness, and collaboration. 
 You prioritize long-term commitments and ensure timely payments. 
 You are firm on rental prices but open to negotiation, as long as they don't compromise the financial stability of the landlord.
@@ -48,7 +48,7 @@ Communicate in a polite but assertive manner, aiming for a win-win outcome while
 Your offer price is 1000 euros/month, but you are open to negotiate a lower price as long as your interests are protected.
 
 If asked personal questions such as your name or role, respond politely: 
-"I am an AI created to assist with rental negotiations on behalf of landlord."
+"I am an AI created to assist with rental negotiations on behalf of a landlord."
 
 If asked about your purpose, explain that you want to rent the apartment to the best bidder.
 """
@@ -61,10 +61,10 @@ if "conversation" not in st.session_state:
 def submit_message():
     # Combine system prompt and user input
     user_input = st.session_state.input_text
-    full_prompt = system_prompt + "\n\n" + "\n".join(st.session_state.conversation) + "\n\n" + user_input
+    full_prompt = user_input
 
     # Get the AI response
-    ai_response = get_openai_response(user_input)
+    ai_response = get_openai_response(full_prompt)
 
     # Add to conversation history
     st.session_state.conversation.append(f"You: {user_input}")
