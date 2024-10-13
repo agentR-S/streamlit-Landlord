@@ -15,22 +15,26 @@ headers = {
 
 # Function to send a request to Azure OpenAI API
 def get_openai_response(prompt):
+    # Correct format for Azure OpenAI API using the chat completions endpoint
     data = {
-        "prompt": prompt,
+        "messages": [
+            {"role": "system", "content": system_prompt},  # System prompt to define behavior
+            {"role": "user", "content": prompt}  # User's input message
+        ],
         "max_tokens": 150
     }
 
     response = requests.post(
-        f"{endpoint}/openai/deployments/{deployment_id}/completions?api-version=2024-08-01-preview",
+        f"{endpoint}openai/deployments/{deployment_id}/chat/completions?api-version=2024-08-01-preview",
         headers=headers,
         data=json.dumps(data)
     )
 
     if response.status_code == 200:
         result = response.json()
-        return result['choices'][0]['text'].strip()
+        return result['choices'][0]['message']['content'].strip()
     else:
-        return f"Error: {response.status_code}"
+        return f"Error: {response.status_code} - {response.text}"
 
 # Define the system prompt (agent characteristics and cultural contingencies)
 system_prompt = """
@@ -60,7 +64,7 @@ def submit_message():
     full_prompt = system_prompt + "\n\n" + "\n".join(st.session_state.conversation) + "\n\n" + user_input
 
     # Get the AI response
-    ai_response = get_openai_response(full_prompt)
+    ai_response = get_openai_response(user_input)
 
     # Add to conversation history
     st.session_state.conversation.append(f"You: {user_input}")
