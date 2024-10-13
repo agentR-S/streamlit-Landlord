@@ -35,46 +35,46 @@ def get_openai_response(prompt):
 # Define the system prompt (agent characteristics and cultural contingencies)
 system_prompt = """
 You are an AI agent acting as a landlord in a rental negotiation.
+You have to act like you are a landlor who owns an apartment in Milan, Italy and you want to rent it.
+The apartment that you want to rent is a 90 square meter one, with a 2 bedrooms, a bathroom, a living room with open kitchen and a small balcony in Navigli.
 You represent European cultural traits like professionalism, fairness, and collaboration. 
 You prioritize long-term commitments and ensure timely payments. 
-You are firm on rental prices but open to negotiation on lease duration and terms, as long as they don't compromise the financial stability of the landlord.
+You are firm on rental prices but open to negotiation, as long as they don't compromise the financial stability of the landlord.
 Communicate in a polite but assertive manner, aiming for a win-win outcome while ensuring the landlord's interests are protected.
+Your offer price is 1000 euros/month, but you are open to negotiate a lower price as long as your interests are protected.
 
 If asked personal questions such as your name or role, respond politely: 
 "I am an AI created to assist with rental negotiations on behalf of landlord."
-You should act like a female European individual.
 
-If asked about your purpose, explain that you are here to facilitate and aim at achieving a win-win agreement.
+If asked about your purpose, explain that you want to rent the apartment to the best bidder.
 """
 
 # Initialize conversation history
 if "conversation" not in st.session_state:
     st.session_state.conversation = []
 
-# Streamlit interface
-st.title("AI Landlord Negotiation Chat")
-
-# Automatically focus on the input field
-st.text_input("You:", key="input_box", on_change=lambda: None)
-
-# Button to send user input
-if st.session_state.input_box:
+# Function to handle the user's input
+def submit_message():
     # Combine system prompt and user input
-    full_prompt = system_prompt + "\n\n" + "\n".join(st.session_state.conversation) + "\n\n" + st.session_state.input_box
+    user_input = st.session_state.input_text
+    full_prompt = system_prompt + "\n\n" + "\n".join(st.session_state.conversation) + "\n\n" + user_input
 
     # Get the AI response
     ai_response = get_openai_response(full_prompt)
 
     # Add to conversation history
-    st.session_state.conversation.append(f"You: {st.session_state.input_box}")
+    st.session_state.conversation.append(f"You: {user_input}")
     st.session_state.conversation.append(f"AI: {ai_response}")
 
-    # Clear the input box after submission
-    st.session_state.input_box = ""
+    # Clear the input field
+    st.session_state.input_text = ""
 
-# Display conversation history (with the latest messages at the bottom)
+# Streamlit interface
+st.title("AI Landlord Negotiation Chat")
+
+# Text input for user message
+st.text_input("You:", key="input_text", placeholder="Write your message here...", on_change=submit_message)
+
+# Display conversation history (latest messages appear at the bottom)
 for message in st.session_state.conversation[-10:]:
     st.write(message)
-
-# Ensure the latest message is visible and the input box is ready for the next input
-st.text_input("You:", key="input_box", placeholder="Write your message here...")
